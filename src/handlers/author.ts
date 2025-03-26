@@ -159,7 +159,6 @@ export async function getOne(req: Request, res: Response)
     throw error;
   }
 }
-
 export async function getAll(req: Request, res: Response)
 {
   assert(req.query, AuthorQueryData);
@@ -196,6 +195,10 @@ export async function getAll(req: Request, res: Response)
       throw new HttpError("Invalid page number", 400);
     }
 
+    // Count total authors that match the filter
+    const totalAuthors = await prisma.author.count({ where: filter });
+    const totalPages = Math.ceil(totalAuthors / take);
+
     const authors = await prisma.author.findMany({
       take,
       skip: take * (page - 1),
@@ -218,7 +221,8 @@ export async function getAll(req: Request, res: Response)
         : undefined,
     });
 
-    res.setHeader("X-Total-Count", authors.length.toString());
+    res.setHeader("X-Total-Count", totalAuthors.toString());
+    res.setHeader("X-Total-Pages", totalPages.toString());
 
     res.status(200).json(authors);
   }

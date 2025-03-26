@@ -223,6 +223,10 @@ export async function getAll(req: Request, res: Response)
       assoc.author = true;
     }
 
+    // Count total books that match the filter
+    const totalBooks = await prisma.book.count({ where: filter });
+    const totalPages = Math.ceil(totalBooks / take);
+
     const books = await prisma.book.findMany({
       where: filter,
       take,
@@ -233,9 +237,8 @@ export async function getAll(req: Request, res: Response)
       include: assoc,
     });
 
-    const totalBooks = await prisma.book.count({ where: filter });
-
     res.setHeader("X-Total-Count", totalBooks.toString());
+    res.setHeader("X-Total-Pages", totalPages.toString());
 
     if (books.length === 0)
     {
