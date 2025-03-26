@@ -1,13 +1,19 @@
 import express from "express";
 import * as user from "@handlers/user";
 
-const router = express.Router();
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management
+ */
+
 /**
  * @swagger
  * /signup:
  *   post:
- *     summary: Create a new user
- *     description: Create a new user with a username, email, and password
+ *     summary: Sign up a new user
+ *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
@@ -17,26 +23,21 @@ const router = express.Router();
  *             properties:
  *               username:
  *                 type: string
- *               email:
- *                 type: string
  *               password:
  *                 type: string
  *     responses:
- *       200:
+ *       201:
  *         description: User created successfully
  *       400:
- *         description: Invalid input or email/username already exists
- *       500:
- *         description: Internal server error
+ *         description: Invalid input
  */
-router.post("/signup", user.signup);
 
 /**
  * @swagger
  * /signin:
  *   post:
- *     summary: Sign in with username and password
- *     description: Sign in a user by providing username and password, returns a JWT token if successful
+ *     summary: Sign in an existing user
+ *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
@@ -50,14 +51,14 @@ router.post("/signup", user.signup);
  *                 type: string
  *     responses:
  *       200:
- *         description: User signed in successfully with JWT token
- *       400:
- *         description: Invalid credentials or missing data
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *         description: User signed in successfully
+ *       401:
+ *         description: Unauthorized
  */
+
+const router = express.Router();
+
+router.post("/signup", user.signup);
 router.post("/signin", user.signin);
 
 export default router;

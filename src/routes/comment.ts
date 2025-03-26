@@ -1,6 +1,4 @@
 import express from "express";
-import * as author from "@handlers/author";
-import * as book from "@handlers/book";
 import * as comment from "@handlers/comment";
 import * as user from "@handlers/user";
 import { validateParams } from "../middlewares/validateParams";
@@ -9,72 +7,21 @@ const router = express.Router();
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     Author:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *         firstname:
- *           type: string
- *         lastname:
- *           type: string
- *         bio:
- *           type: string
- *           nullable: true
- *         birthYear:
- *           type: integer
- *           nullable: true
- *         deathYear:
- *           type: integer
- *           nullable: true
- *         image:
- *           type: string
- *           nullable: true
- *     Book:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *         title:
- *           type: string
- *         authorId:
- *           type: integer
- *     Comment:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *         content:
- *           type: string
- *         bookId:
- *           type: integer
- *         userId:
- *           type: integer
- */
-
-/**
- * @swagger
  * /books/{book_id}/comments:
  *   get:
  *     summary: Get all comments for a book
- *     tags: [Comments]
  *     parameters:
  *       - in: path
  *         name: book_id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: The ID of the book
  *     responses:
  *       200:
- *         description: List of comments
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Comment'
+ *         description: A list of comments
+ *       400:
+ *         description: Invalid parameters
  */
 router.get("/books/:book_id/comments", validateParams, comment.getAllOfBook);
 
@@ -82,16 +29,14 @@ router.get("/books/:book_id/comments", validateParams, comment.getAllOfBook);
  * @swagger
  * /books/{book_id}/comments:
  *   post:
- *     summary: Create a comment for a book
- *     tags: [Comments]
+ *     summary: Add a comment to a book
  *     parameters:
  *       - in: path
  *         name: book_id
  *         required: true
  *         schema:
- *           type: integer
- *     security:
- *       - bearerAuth: []
+ *           type: string
+ *         description: The ID of the book
  *     requestBody:
  *       required: true
  *       content:
@@ -101,11 +46,12 @@ router.get("/books/:book_id/comments", validateParams, comment.getAllOfBook);
  *             properties:
  *               content:
  *                 type: string
+ *                 description: The content of the comment
  *     responses:
  *       201:
- *         description: Comment created
- *       401:
- *         description: Unauthorized
+ *         description: Comment created successfully
+ *       400:
+ *         description: Invalid parameters
  */
 router.post(
   "/books/:book_id/comments",
@@ -119,15 +65,13 @@ router.post(
  * /comments/{comment_id}:
  *   patch:
  *     summary: Update a comment
- *     tags: [Comments]
  *     parameters:
  *       - in: path
  *         name: comment_id
  *         required: true
  *         schema:
- *           type: integer
- *     security:
- *       - bearerAuth: []
+ *           type: string
+ *         description: The ID of the comment
  *     requestBody:
  *       required: true
  *       content:
@@ -137,11 +81,12 @@ router.post(
  *             properties:
  *               content:
  *                 type: string
+ *                 description: The updated content of the comment
  *     responses:
  *       200:
- *         description: Comment updated
- *       401:
- *         description: Unauthorized
+ *         description: Comment updated successfully
+ *       400:
+ *         description: Invalid parameters
  */
 router.patch(
   "/comments/:comment_id",
@@ -155,20 +100,18 @@ router.patch(
  * /comments/{comment_id}:
  *   delete:
  *     summary: Delete a comment
- *     tags: [Comments]
  *     parameters:
  *       - in: path
  *         name: comment_id
  *         required: true
  *         schema:
- *           type: integer
- *     security:
- *       - bearerAuth: []
+ *           type: string
+ *         description: The ID of the comment
  *     responses:
- *       204:
- *         description: Comment deleted
- *       401:
- *         description: Unauthorized
+ *       200:
+ *         description: Comment deleted successfully
+ *       400:
+ *         description: Invalid parameters
  */
 router.delete(
   "/comments/:comment_id",

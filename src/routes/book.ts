@@ -1,5 +1,4 @@
 import express from "express";
-import * as author from "@handlers/author";
 import * as book from "@handlers/book";
 import { validateParams } from "../middlewares/validateParams";
 
@@ -7,114 +6,100 @@ const router = express.Router();
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     Author:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         name:
- *           type: string
- *     Book:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         title:
- *           type: string
- *         authorId:
- *           type: string
- */
-
-/**
- * @swagger
- * /authors:
- *   post:
- *     summary: Create a new author
- *     tags: [Authors]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Author'
- *     responses:
- *       201:
- *         description: Author created successfully
- *       400:
- *         description: Invalid input
- */
-router.post("/authors", author.createOne);
-
-/**
- * @swagger
- * /authors:
+ * /books:
  *   get:
- *     summary: Get all authors
- *     tags: [Authors]
+ *     summary: Get all books
+ *     description: Retrieve a list of all books.
  *     responses:
  *       200:
- *         description: List of authors
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Author'
- *       500:
- *         description: Server error
+ *         description: A list of books.
  */
-router.get("/authors", author.getAll);
+router.get("/books", book.getAll);
 
 /**
  * @swagger
- * /authors/{author_id}:
- *   get:
- *     summary: Get a specific author by ID
- *     tags: [Authors]
+ * /authors/{author_id}/books:
+ *   post:
+ *     summary: Create a book for an author
+ *     description: Add a new book for a specific author.
  *     parameters:
  *       - in: path
  *         name: author_id
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the author
+ *     responses:
+ *       201:
+ *         description: Book created successfully.
+ *   get:
+ *     summary: Get all books of an author
+ *     description: Retrieve all books written by a specific author.
+ *     parameters:
+ *       - in: path
+ *         name: author_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the author
  *     responses:
  *       200:
- *         description: Author found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Author'
- *       404:
- *         description: Author not found
+ *         description: A list of books by the author.
  */
-router.get("/authors/:author_id", validateParams, author.getOne);
+router
+  .route("/authors/:author_id/books")
+  .all(validateParams)
+  .post(book.createOneOfAuthor)
+  .get(book.getAllOfAuthor);
 
 /**
  * @swagger
  * /books/{book_id}:
  *   patch:
  *     summary: Update a book
- *     tags: [Books]
+ *     description: Update details of a specific book.
  *     parameters:
  *       - in: path
  *         name: book_id
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Book'
+ *         description: The ID of the book
  *     responses:
  *       200:
- *         description: Book updated successfully
- *       400:
- *         description: Invalid input
+ *         description: Book updated successfully.
+ *   delete:
+ *     summary: Delete a book
+ *     description: Remove a specific book from the database.
+ *     parameters:
+ *       - in: path
+ *         name: book_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the book
+ *     responses:
+ *       200:
+ *         description: Book deleted successfully.
+ *   get:
+ *     summary: Get a book
+ *     description: Retrieve details of a specific book.
+ *     parameters:
+ *       - in: path
+ *         name: book_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the book
+ *     responses:
+ *       200:
+ *         description: Details of the book.
  */
-router.patch("/books/:book_id", validateParams, book.updateOneOfAuthor);
+router
+  .route("/books/:book_id")
+  .all(validateParams)
+  .patch(book.updateOneOfAuthor)
+  .delete(book.deleteOne)
+  .get(book.getOne);
 
 export default router;

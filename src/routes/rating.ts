@@ -10,29 +10,18 @@ const router = express.Router();
  * /books/{book_id}/ratings:
  *   get:
  *     summary: Get all ratings of a book
- *     tags: [Ratings]
  *     parameters:
  *       - in: path
  *         name: book_id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: The ID of the book
  *     responses:
  *       200:
- *         description: List of ratings for the book
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   value:
- *                     type: integer
- *                   userId:
- *                     type: integer
- *       404:
- *         description: Book not found
+ *         description: A list of ratings
+ *       400:
+ *         description: Invalid parameters
  */
 router.get("/books/:book_id/ratings", validateParams, rating.getAllOfBook);
 
@@ -40,30 +29,19 @@ router.get("/books/:book_id/ratings", validateParams, rating.getAllOfBook);
  * @swagger
  * /books/{book_id}/ratings:
  *   post:
- *     summary: Create a new rating for a book
- *     tags: [Ratings]
+ *     summary: Create a rating for a book
  *     parameters:
  *       - in: path
  *         name: book_id
  *         required: true
  *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               rating:
- *                 type: integer
+ *           type: string
+ *         description: The ID of the book
  *     responses:
  *       201:
  *         description: Rating created successfully
  *       400:
- *         description: Invalid input or already rated
- *       401:
- *         description: Unauthorized
+ *         description: Invalid parameters
  */
 router.post(
   "/books/:book_id/ratings",
@@ -76,34 +54,19 @@ router.post(
  * @swagger
  * /ratings/{rating_id}:
  *   patch:
- *     summary: Update a rating
- *     tags: [Ratings]
+ *     summary: Update a user's rating
  *     parameters:
  *       - in: path
  *         name: rating_id
  *         required: true
  *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               rating:
- *                 type: integer
+ *           type: string
+ *         description: The ID of the rating
  *     responses:
  *       200:
  *         description: Rating updated successfully
  *       400:
- *         description: Invalid input
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden (not the owner of the rating)
- *       404:
- *         description: Rating not found
+ *         description: Invalid parameters
  */
 router.patch(
   "/ratings/:rating_id",
@@ -116,23 +79,19 @@ router.patch(
  * @swagger
  * /ratings/{rating_id}:
  *   delete:
- *     summary: Delete a rating
- *     tags: [Ratings]
+ *     summary: Delete a rating of a book
  *     parameters:
  *       - in: path
  *         name: rating_id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: The ID of the rating
  *     responses:
- *       204:
+ *       200:
  *         description: Rating deleted successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden (not the owner of the rating)
- *       404:
- *         description: Rating not found
+ *       400:
+ *         description: Invalid parameters
  */
 router.delete(
   "/ratings/:rating_id",
@@ -146,26 +105,18 @@ router.delete(
  * /books/{book_id}/ratings/average:
  *   get:
  *     summary: Get the average rating of a book
- *     tags: [Ratings]
  *     parameters:
  *       - in: path
  *         name: book_id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *         description: The ID of the book
  *     responses:
  *       200:
- *         description: Average rating of the book
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 average:
- *                   type: number
- *                   format: float
- *       404:
- *         description: Book not found
+ *         description: Average rating retrieved successfully
+ *       400:
+ *         description: Invalid parameters
  */
 router.get(
   "/books/:book_id/ratings/average",
