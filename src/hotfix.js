@@ -115,4 +115,44 @@ var updateAuthorImages = function () { return __awaiter(void 0, void 0, void 0, 
         }
     });
 }); };
-updateAuthorImages();
+// updateAuthorImages();
+var updateBookCovers = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var books, _i, books_1, book, randomBookId, updatedCover, error_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 6, , 7]);
+                return [4 /*yield*/, db_1.prisma.book.findMany()];
+            case 1:
+                books = _a.sent();
+                _i = 0, books_1 = books;
+                _a.label = 2;
+            case 2:
+                if (!(_i < books_1.length)) return [3 /*break*/, 5];
+                book = books_1[_i];
+                if (!book.cover) return [3 /*break*/, 4];
+                randomBookId = Math.floor(Math.random() * 1000000);
+                updatedCover = " https://covers.openlibrary.org/b/id/" + randomBookId + "-M.jpg";
+                return [4 /*yield*/, db_1.prisma.book.update({
+                        where: { id: book.id },
+                        data: { cover: updatedCover },
+                    })];
+            case 3:
+                _a.sent();
+                console.log("Updated book ".concat(book.id, ": ").concat(updatedCover));
+                _a.label = 4;
+            case 4:
+                _i++;
+                return [3 /*break*/, 2];
+            case 5:
+                console.log("All book covers updated.");
+                return [3 /*break*/, 7];
+            case 6:
+                error_3 = _a.sent();
+                console.error("Error updating book covers:", error_3.message);
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
+        }
+    });
+}); };
+updateBookCovers();

@@ -180,6 +180,10 @@ export async function getOne(req: Request, res: Response)
     }
     const book = await prisma.book.findUnique({
       where: { id: book_id },
+      include: {
+        tags: true,
+        comments: true,
+      },
     });
 
     res.status(200).json(book);

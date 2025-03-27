@@ -129,7 +129,10 @@ export async function getOne(req: Request, res: Response)
       include: {
         books: {
           select: {
+            id: true,
             title: true,
+            cover: true,
+            publicationYear: true,
           },
         },
       },

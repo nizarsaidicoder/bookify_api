@@ -33,12 +33,16 @@ const fixAuthorImages = async () =>
 
 // fixAuthorImages();
 
-const updateAuthorImages = async () => {
-  try {
+const updateAuthorImages = async () =>
+{
+  try
+  {
     const authors = await prisma.author.findMany();
 
-    for (const author of authors) {
-      if (author.image && author.image.endsWith(".jpg")) {
+    for (const author of authors)
+    {
+      if (author.image && author.image.endsWith(".jpg"))
+      {
         const updatedImage = author.image.replace(".jpg", "-M.jpg");
 
         await prisma.author.update({
@@ -51,10 +55,44 @@ const updateAuthorImages = async () => {
     }
 
     console.log("All author images updated.");
-  } catch (error) {
+  }
+  catch (error)
+  {
     console.error("Error updating author images:", error.message);
   }
 };
 
-updateAuthorImages();
+// updateAuthorImages();
 
+const updateBookCovers = async () =>
+{
+  try
+  {
+    const books = await prisma.book.findMany();
+
+    for (const book of books)
+    {
+      if (book.cover)
+      {
+        const randomBookId = Math.floor(Math.random() * 1000000);
+        const updatedCover =
+          " https://covers.openlibrary.org/b/id/" + randomBookId + "-M.jpg";
+
+        await prisma.book.update({
+          where: { id: book.id },
+          data: { cover: updatedCover },
+        });
+
+        console.log(`Updated book ${book.id}: ${updatedCover}`);
+      }
+    }
+
+    console.log("All book covers updated.");
+  }
+  catch (error)
+  {
+    console.error("Error updating book covers:", error.message);
+  }
+};
+
+updateBookCovers();
