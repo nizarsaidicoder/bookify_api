@@ -6,6 +6,7 @@ import { assert } from "superstruct";
 import {
   BookCreationData,
   BookQueryData,
+  BookSimilarityData,
   BookUpdateData,
 } from "@validation/book";
 import { Prisma } from "@prisma/client";
@@ -16,26 +17,14 @@ export async function createOneOfAuthor(req: Request, res: Response)
   try
   {
     const author_id: number = parseInt(req.params.author_id);
-    const title: string = req.body.title;
-    const publicationYear: number | undefined =
-      req.body.publicationYear || undefined;
+    const { title, description, publicationYear, cover } = req.body;
 
-    if (!publicationYear)
-    {
-      throw new HttpError("Publication year is missing", 400);
-    }
-    if (isNaN(publicationYear))
-    {
-      throw new HttpError("Publication year is not a number", 400);
-    }
-    if (!author_id)
-    {
-      throw new HttpError("Author ID is missing", 400);
-    }
     const book = await prisma.book.create({
       data: {
         title: title,
         publicationYear: publicationYear,
+        description: description,
+        cover: cover,
         author: {
           connect: {
             id: author_id,
@@ -208,6 +197,8 @@ export async function getAll(req: Request, res: Response)
   {
     const filterByTitle: string | undefined = req.query.title?.toString();
     const filter: Prisma.BookWhereInput = {};
+    const sort = req.query.sortBy?.toString() || "title";
+    const sortType = req.query.sortType?.toString();
 
     if (filterByTitle)
     {
@@ -235,9 +226,11 @@ export async function getAll(req: Request, res: Response)
       where: filter,
       take,
       skip: take * (page - 1),
-      orderBy: {
-        title: "asc",
-      },
+      orderBy: sort
+        ? {
+            [sort]: sortType || "asc",
+          }
+        : undefined,
       include: assoc,
     });
 
@@ -259,5 +252,51 @@ export async function getAll(req: Request, res: Response)
     res
       .status(500)
       .json({ error: "An unexpected error occurred while fetching books." });
+  }
+}
+
+export async function getSimilars(req: Request, res: Response)
+{
+  try
+  {
+    const book_id: number = parseInt(req.params.book_id);
+
+    const book = await prisma.book.findUnique({
+      where: {
+        id: book_id,
+      },
+      include: {
+        tags: true,
+      },
+    });
+
+    if (!book)
+    {
+      throw new NotFoundError("Book not found");
+    }
+
+    const tags = book.tags?.map((tag) => tag.id) || [];
+    const books = await prisma.book.findMany({
+      where: {
+        tags: {
+          some: {
+            id: {
+              in: tags,
+            },
+          },
+        },
+      },
+      take: 10,
+    });
+
+    res.status(200).json(books);
+  }
+  catch (err: unknown)
+  {
+    if (err instanceof PrismaClientKnownRequestError && err.code === "P2025")
+    {
+      throw new NotFoundError("Book not found");
+    }
+    throw err;
   }
 }

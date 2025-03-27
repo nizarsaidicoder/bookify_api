@@ -6,6 +6,16 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /books/{book_id}/similars:
+ *  get:
+ *   summary: Get similar books
+ *  description: Retrieve a list of books similar to a specific book.
+ */
+
+router.get("/books/:book_id/similars", book.getSimilars);
+
+/**
+ * @swagger
  * /books:
  *   get:
  *     summary: Get all books
