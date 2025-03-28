@@ -16,8 +16,7 @@ export async function updateOne(req: Request, res: Response)
   try
   {
     const author_id: number = parseInt(req.params.author_id);
-    const { firstname, lastname, bio, birthYear, deathYear, image } = req.body;
-
+    const { firstname, lastname, bio, birthDate, deathDate, image } = req.body;
     const author = await prisma.author.update({
       where: {
         id: author_id,
@@ -26,8 +25,8 @@ export async function updateOne(req: Request, res: Response)
         firstname,
         lastname,
         bio,
-        birthDate: birthYear ? new Date(birthYear) : null,
-        deathDate: deathYear ? new Date(deathYear) : null,
+        birthDate,
+        deathDate,
         image,
       },
     });
@@ -74,7 +73,7 @@ export async function createOne(req: Request, res: Response)
   assert(req.body, AuthorCreationData);
   try
   {
-    const { firstname, lastname, birthYear, deathYear, bio, image } = req.body;
+    const { firstname, lastname, birthDate, deathDate, bio, image } = req.body;
 
     const exist = await prisma.author.findFirst({
       where: {
@@ -86,12 +85,11 @@ export async function createOne(req: Request, res: Response)
     {
       throw new HttpError("Author already exists", 400);
     }
-    if (birthYear && deathYear && birthYear > deathYear)
+    // compare birthDate and deathDate
+    if (birthDate && deathDate && birthDate > deathDate)
     {
-      throw new HttpError("Invalid birth and death year", 400);
+      throw new HttpError("Birth date cannot be after death date", 400);
     }
-    const birthDate = new Date(birthYear || 0);
-    const deathDate = new Date(deathYear || 0);
 
     const author = await prisma.author.create({
       data: {
@@ -137,13 +135,7 @@ export async function getOne(req: Request, res: Response)
         },
       },
     });
-    // format the birth and death date to be year only
-    const response = {
-      ...author,
-      birthYear: author?.birthDate ? author.birthDate.getFullYear() : null,
-      deathYear: author?.deathDate ? author.deathDate.getFullYear() : null,
-    };
-    res.status(200).json(response);
+    res.status(200).json(author);
   }
   catch (error: unknown)
   {
