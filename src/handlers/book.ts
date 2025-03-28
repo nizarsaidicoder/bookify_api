@@ -18,6 +18,13 @@ export async function createOneOfAuthor(req: Request, res: Response)
   {
     const author_id: number = parseInt(req.params.author_id);
     const { title, description, publicationYear, cover } = req.body;
+    const tags =
+      req.body.tags
+        ?.toString()
+        .split(",")
+        .map((tag) => ({
+          name: tag,
+        })) || [];
 
     const book = await prisma.book.create({
       data: {
@@ -25,6 +32,9 @@ export async function createOneOfAuthor(req: Request, res: Response)
         publicationYear: publicationYear,
         description: description,
         cover: cover,
+        tags: {
+          create: tags,
+        },
         author: {
           connect: {
             id: author_id,
@@ -109,18 +119,34 @@ export async function updateOneOfAuthor(req: Request, res: Response)
   {
     // Validate the request body against the BookUpdateData schema
     const bookId = parseInt(req.params.book_id);
-    const { title } = req.body;
+    const { title, description, cover } = req.body;
     const publicationYear = req.body.publicationYear || undefined;
+    const tags =
+      req.body.tags
+        ?.toString()
+        .split(",")
+        .map((tag) => ({
+          name: tag,
+        })) || [];
 
-    const data: Prisma.BookUpdateInput = {};
-    if (title !== undefined) data.title = title;
-    if (publicationYear !== undefined) data.publicationYear = publicationYear;
+    const data: Prisma.BookUpdateInput = {
+      title,
+      description,
+      cover,
+      publicationYear,
+      tags: {
+        set: tags,
+      },
+    };
 
     const book = await prisma.book.update({
       where: { id: bookId },
       data,
+      include: {
+        tags: true,
+      },
     });
-    res.json(book);
+    res.status(201).json(book);
   }
   catch (err)
   {
@@ -199,6 +225,17 @@ export async function getAll(req: Request, res: Response)
     const filter: Prisma.BookWhereInput = {};
     const sort = req.query.sortBy?.toString() || "title";
     const sortType = req.query.sortType?.toString();
+    const tags = req.query.tags?.toString();
+    if (tags)
+    {
+      filter.tags = {
+        some: {
+          name: {
+            in: tags.split(","),
+          },
+        },
+      };
+    }
 
     if (filterByTitle)
     {
