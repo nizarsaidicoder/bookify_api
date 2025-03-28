@@ -1,11 +1,12 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
 model Author {
   id  Int @id @default(autoincrement())
   firstname String
@@ -28,6 +29,7 @@ model Book {
   tags Tag[]
   comments Comment[]
   rating Rating[]
+  avgRating Float? @default(0.0) 
 }
 
 model Tag {
@@ -35,6 +37,7 @@ model Tag {
   name String @unique
   books Book[]
 }
+
 model User {
   id Int @id @default(autoincrement())
   email String @unique
@@ -55,7 +58,7 @@ model Comment {
   userId Int
 }
 
-model Rating{
+model Rating {
   id Int @id @default(autoincrement())
   value Int
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)

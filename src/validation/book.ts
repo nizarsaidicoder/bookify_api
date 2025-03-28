@@ -33,7 +33,7 @@ export const BookQueryData = object({
   title: optional(size(string(), 1, 100)),
   publicationYear: optional(refine(string(), "int", (value) => isInt(value))),
   include: optional(enums(["authors"])),
-  sortBy: optional(enums(["title", "publicationYear"])),
+  sortBy: optional(enums(["title", "publicationYear", "avgRating"])),
   sortType: optional(enums(["asc", "desc"])),
   tags: optional(string()),
 });

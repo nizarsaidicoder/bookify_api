@@ -131,6 +131,7 @@ export async function getOne(req: Request, res: Response)
             title: true,
             cover: true,
             publicationYear: true,
+            avgRating: true,
           },
         },
       },

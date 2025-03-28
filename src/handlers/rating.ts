@@ -5,6 +5,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { assert } from "superstruct";
 import { RatingCreationData } from "@validation/rating";
 import { Request as AuthRequest } from "express-jwt";
+import { updateBookAvgRating } from "./book";
 
 export async function getAllOfBook(req: Request, res: Response)
 {
@@ -72,6 +73,8 @@ export async function createOneOfBook(req: Request, res: Response)
         userId: user_id,
       },
     });
+    // Update the book's average rating
+    updateBookAvgRating(book_id);
     res.status(201).json(newRating);
   }
   catch (err: unknown)
@@ -106,6 +109,13 @@ export async function updateOneOfUser(req: Request, res: Response)
     const rating_id: number = parseInt(req.params.rating_id.toString());
     const oldRating = await prisma.rating.findUnique({
       where: { id: rating_id },
+      include: {
+        book: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
     if (!oldRating)
     {
@@ -120,6 +130,8 @@ export async function updateOneOfUser(req: Request, res: Response)
       data: { value: rating },
     });
     res.status(200).json(newRating);
+    // Update the book's average rating
+    updateBookAvgRating(oldRating.book.id);
   }
   catch (err: unknown)
   {
@@ -157,6 +169,9 @@ export async function deleteOneOfBook(req: Request, res: Response)
     await prisma.rating.delete({
       where: { id: rating_id },
     });
+    // Update the book's average rating
+    const book_id = rating.bookId;
+    updateBookAvgRating(book_id);
     res.status(204).end();
   }
   catch (err: unknown)
@@ -164,47 +179,6 @@ export async function deleteOneOfBook(req: Request, res: Response)
     if (err instanceof PrismaClientKnownRequestError && err.code === "P2025")
     {
       throw new NotFoundError("Rating not found");
-    }
-    throw new HttpError("Internal server error", 500);
-  }
-}
-// GET /books/:book_id/ratings/average : retourne la moyenne des notes associées au livre dont l'identifiant est :book_id
-export async function getAverageOfBook(req: Request, res: Response)
-{
-  try
-  {
-    let book_id: number;
-    if (!req.params.book_id)
-    {
-      throw new HttpError("Book ID is missing", 400);
-    }
-    book_id = parseInt(req.params.book_id.toString());
-
-    const book = await prisma.book.findFirst({
-      where: {
-        id: book_id,
-      },
-      include: {
-        rating: true,
-      },
-    });
-    if (!book)
-    {
-      throw new NotFoundError("Book not found");
-    }
-    let sum = 0;
-    book.rating.forEach((rating) =>
-    {
-      sum += rating.value;
-    });
-    const average = sum / book.rating.length;
-    res.status(200).json({ average });
-  }
-  catch (err: unknown)
-  {
-    if (err instanceof PrismaClientKnownRequestError && err.code === "P2025")
-    {
-      throw new NotFoundError("Book not found");
     }
     throw new HttpError("Internal server error", 500);
   }

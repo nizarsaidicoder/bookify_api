@@ -100,28 +100,4 @@ router.delete(
   rating.deleteOneOfBook,
 );
 
-/**
- * @swagger
- * /books/{book_id}/ratings/average:
- *   get:
- *     summary: Get the average rating of a book
- *     parameters:
- *       - in: path
- *         name: book_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the book
- *     responses:
- *       200:
- *         description: Average rating retrieved successfully
- *       400:
- *         description: Invalid parameters
- */
-router.get(
-  "/books/:book_id/ratings/average",
-  validateParams,
-  rating.getAverageOfBook,
-);
-
 export default router;

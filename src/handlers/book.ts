@@ -221,41 +221,37 @@ export async function getAll(req: Request, res: Response)
   assert(req.query, BookQueryData);
   try
   {
-    const filterByTitle: string | undefined = req.query.title?.toString();
     const filter: Prisma.BookWhereInput = {};
     const sort = req.query.sortBy?.toString() || "title";
-    const sortType = req.query.sortType?.toString();
+    const sortType = req.query.sortType?.toString() || "asc";
     const tags = req.query.tags?.toString();
+    const include = req.query.include?.toString();
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const take = Math.min(Math.max(Number(req.query.take) || 10, 1), 100);
+
     if (tags)
     {
       filter.tags = {
-        some: {
-          name: {
-            in: tags.split(","),
-          },
-        },
+        some: { name: { in: tags.split(",") } },
       };
     }
 
-    if (filterByTitle)
+    if (req.query.title)
     {
-      filter.title = {
-        contains: filterByTitle,
-      };
+      filter.title = { contains: req.query.title.toString() };
     }
 
-    const page = parseInt(req.query.page?.toString() || "1");
-    const take: number = parseInt(req.query.take?.toString() || "10");
-    const include: string | undefined = req.query.include?.toString();
+    const allowedSortFields = ["title", "publicationYear", "avgRating"];
+    const validSort = allowedSortFields.includes(sort) ? sort : "title";
+
     const assoc: Prisma.BookInclude = {
       _count: true,
     };
+
     if (include === "authors")
     {
       assoc.author = true;
     }
-
-    // Count total books that match the filter
     const totalBooks = await prisma.book.count({ where: filter });
     const totalPages = Math.ceil(totalBooks / take);
 
@@ -263,11 +259,9 @@ export async function getAll(req: Request, res: Response)
       where: filter,
       take,
       skip: take * (page - 1),
-      orderBy: sort
-        ? {
-            [sort]: sortType || "asc",
-          }
-        : undefined,
+      orderBy: {
+        [validSort]: sortType,
+      },
       include: assoc,
     });
 
@@ -276,12 +270,10 @@ export async function getAll(req: Request, res: Response)
 
     if (books.length === 0)
     {
-      res.status(200).json({ msg: "No books found" });
+      return res.status(200).json({ msg: "No books found" });
     }
-    else
-    {
-      res.status(200).json(books);
-    }
+
+    res.status(200).json(books);
   }
   catch (err)
   {
@@ -336,4 +328,17 @@ export async function getSimilars(req: Request, res: Response)
     }
     throw err;
   }
+}
+
+export async function updateBookAvgRating(bookId: number)
+{
+  const avg = await prisma.rating.aggregate({
+    where: { bookId },
+    _avg: { value: true },
+  });
+
+  await prisma.book.update({
+    where: { id: bookId },
+    data: { avgRating: avg._avg.value || 0 },
+  });
 }
