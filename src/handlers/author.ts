@@ -138,17 +138,12 @@ export async function getOne(req: Request, res: Response)
       },
     });
     // format the birth and death date to be year only
-    if (author?.birthDate)
-    {
-      author.birthYear = author.birthDate.getFullYear();
-    }
-    if (author?.deathDate)
-    {
-      author.deathYear = author.deathDate.getFullYear
-        ? author.deathDate.getFullYear()
-        : null;
-    }
-    res.status(200).json(author);
+    const response = {
+      ...author,
+      birthYear: author?.birthDate ? author.birthDate.getFullYear() : null,
+      deathYear: author?.deathDate ? author.deathDate.getFullYear() : null,
+    };
+    res.status(200).json(response);
   }
   catch (error: unknown)
   {
