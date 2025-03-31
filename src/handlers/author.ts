@@ -160,6 +160,7 @@ export async function getAll(req: Request, res: Response)
     const filterByLastname: string | undefined = req.query.lastname?.toString();
     const hasSome: boolean = req.query.hasSome === "true";
     const includeBooks: boolean = req.query.includeBooks === "true";
+    const all = req.query.all === "true";
 
     const sort = req.query.sortBy?.toString() || "firstname";
     const sortType = req.query.sortType?.toString();
@@ -179,7 +180,7 @@ export async function getAll(req: Request, res: Response)
       filter.books = { some: {} };
     }
 
-    const take = parseInt(req.query.take?.toString() || "10");
+    let take = parseInt(req.query.take?.toString() || "10");
     const page = parseInt(req.query.page?.toString() || "1");
     if (page < 1)
     {
@@ -189,6 +190,12 @@ export async function getAll(req: Request, res: Response)
     // Count total authors that match the filter
     const totalAuthors = await prisma.author.count({ where: filter });
     const totalPages = Math.ceil(totalAuthors / take);
+    let skip = take * (page - 1);
+    if (all)
+    {
+      take = totalAuthors;
+      skip = 0;
+    }
 
     const authors = await prisma.author.findMany({
       take,

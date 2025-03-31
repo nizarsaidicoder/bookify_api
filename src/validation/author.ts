@@ -33,6 +33,7 @@ export const AuthorQueryData = object({
   lastname: optional(size(string(), 1, 50)),
   hasSome: optional(enums(["true", "false"])),
   includeBooks: optional(enums(["true", "false"])),
+  all: optional(enums(["true", "false"])),
   sortBy: optional(enums(["firstname", "lastname"])),
   sortType: optional(enums(["asc", "desc"])),
 });
