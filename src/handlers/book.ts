@@ -76,7 +76,7 @@ export async function getAllOfAuthor(req: Request, res: Response)
       },
       include: {
         _count: {
-          select: { books: true },
+          select: { books: {} },
         },
         books: {
           skip: take * (page - 1),

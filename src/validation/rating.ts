@@ -1,8 +1,8 @@
-import { object, integer, refine } from "superstruct";
+import { object, number, integer } from "superstruct";
 
 export const RatingCreationData = object({
-  rating: refine(integer(), "rating", (value) => value >= 1 && value <= 5),
+  rating: integer(),
 });
 export const RatingUpdateData = object({
-  rating: refine(integer(), "rating", (value) => value >= 1 && value <= 5),
+  rating: integer(),
 });

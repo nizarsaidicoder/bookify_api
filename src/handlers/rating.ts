@@ -46,6 +46,7 @@ export async function getAllOfBook(req: Request, res: Response)
 export async function createOneOfBook(req: Request, res: Response)
 {
   assert(req.body, RatingCreationData);
+  console.log(req.body);
   try
   {
     const book_id: number = parseInt(req.params.book_id.toString());
@@ -129,9 +130,9 @@ export async function updateOneOfUser(req: Request, res: Response)
       where: { id: rating_id },
       data: { value: rating },
     });
+    updateBookAvgRating(oldRating.book.id);
     res.status(200).json(newRating);
     // Update the book's average rating
-    updateBookAvgRating(oldRating.book.id);
   }
   catch (err: unknown)
   {
