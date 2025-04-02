@@ -9,6 +9,7 @@ import userRoutes from "./routes/user";
 import tagRoutes from "./routes/tag";
 import bookRoutes from "./routes/book";
 import authorRoutes from "./routes/author";
+import { prisma } from "./db";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(userRoutes);
 app.use(tagRoutes);
 app.use(bookRoutes);
 app.use(authorRoutes);
+
 
 // Default Route
 app.get("/", (req: Request, res: Response) =>

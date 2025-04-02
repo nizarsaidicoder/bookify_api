@@ -35,6 +35,7 @@ model Book {
 model Tag {
   id  Int @id @default(autoincrement())
   name String @unique
+  color String?
   books Book[]
 }
 

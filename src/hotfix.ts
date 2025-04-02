@@ -1,5 +1,7 @@
 // import { prisma } from "./db";
 
+import { prisma } from "./db";
+
 // const fixAuthorImages = async () =>
 // {
 //   try
@@ -96,3 +98,5 @@
 // };
 
 // updateBookCovers();
+
+// browse all tags and add color to them

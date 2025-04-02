@@ -240,6 +240,12 @@ export async function getAll(req: Request, res: Response)
     {
       filter.title = { contains: req.query.title.toString() };
     }
+    if (req.query.publicationYear)
+    {
+      filter.publicationYear = {
+        equals: parseInt(req.query.publicationYear.toString()),
+      };
+    } 
 
     const allowedSortFields = ["title", "publicationYear", "avgRating"];
     const validSort = allowedSortFields.includes(sort) ? sort : "title";
