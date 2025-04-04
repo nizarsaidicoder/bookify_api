@@ -94,7 +94,7 @@ export async function getAllOfAuthor(req: Request, res: Response)
     }
     if (author.books.length === 0)
     {
-      res.status(200).json({ msg: "Author have no books" });
+      res.status(200).json([]);
     }
     else
     {
@@ -245,7 +245,7 @@ export async function getAll(req: Request, res: Response)
       filter.publicationYear = {
         equals: parseInt(req.query.publicationYear.toString()),
       };
-    } 
+    }
 
     const allowedSortFields = ["title", "publicationYear", "avgRating"];
     const validSort = allowedSortFields.includes(sort) ? sort : "title";
@@ -276,7 +276,7 @@ export async function getAll(req: Request, res: Response)
 
     if (books.length === 0)
     {
-      return res.status(200).json({ msg: "No books found" });
+      return res.status(200).json([]);
     }
 
     res.status(200).json(books);
