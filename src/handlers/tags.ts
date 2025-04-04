@@ -107,11 +107,11 @@ export async function createOne(req: Request, res: Response)
       error.code === "P2002"
     )
     {
-      res.status(400).json({ error: "A tag with that name already exists" });
+      throw new HttpError("A tag with that name already exists", 400);
     }
     else
     {
-      res.status(500).json({ error: "Internal server error" });
+      throw new HttpError("Internal server error", 500);
     }
   }
 }
