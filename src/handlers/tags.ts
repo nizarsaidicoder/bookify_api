@@ -96,7 +96,9 @@ export async function createOne(req: Request, res: Response)
   assert(req.body, TagCreationData);
   try
   {
-    const tag = await prisma.tag.create({ data: { name: req.body.name } });
+    const tag = await prisma.tag.create({
+      data: { name: req.body.name, color: req.body.color },
+    });
 
     res.status(201).json(tag);
   }
