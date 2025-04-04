@@ -41,9 +41,6 @@ export async function createOneOfAuthor(req: Request, res: Response)
           },
         },
       },
-      include: {
-        author: true,
-      },
     });
     res.json(book);
   }
